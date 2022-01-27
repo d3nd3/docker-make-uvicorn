@@ -19,13 +19,14 @@ UVICORN_APP_ROOT := /docker-work/uvicornn/appdir:ro
 # READ_ONLY := --read-only -v $(MNT_DIRS_ABS)/nginx-cache:/var/cache/nginx -v $(MNT_DIRS_ABS)/nginx-pid:/var/run
 
 # will always run because  docker-run file is never created. ( intended )
-docker-run: DOCKERBUILDTOUCH del-cont
-	@echo INFO: spawning $(CONTAINER_NAME)
-	mkdir -p $(MNT_DIRS_REL)/appdir/static $(SILENCE_OUTPUT)
-	mkdir $(MNT_DIRS_REL)/html $(SILENCE_OUTPUT)
-	mkdir $(MNT_DIRS_REL)/nginx-cache $(SILENCE_OUTPUT)
-	mkdir $(MNT_DIRS_REL)/nginx-pid $(SILENCE_OUTPUT)
+docker-run: DOCKERBUILDTOUCH \
+			del-cont \
+			$(MNT_DIRS_REL)/appdir/static \
+			$(MNT_DIRS_REL)/html \
+			$(MNT_DIRS_REL)/nginx-cache \
+			$(MNT_DIRS_REL)/nginx-pid
 
+	@echo INFO: spawning $(CONTAINER_NAME)
 	docker run \
 		$(READ_ONLY) \
 		--name $(CONTAINER_NAME) \
@@ -35,7 +36,9 @@ docker-run: DOCKERBUILDTOUCH del-cont
 		$(IMAGE_NAME)
 
 #rebuild Image to copy over the changed Context Files.
-DOCKERBUILDTOUCH: $(BUILD_CONTEXT)/nginx.conf $(BUILD_CONTEXT)/Dockerfile $(BUILD_CONTEXT)/start_uvicorn.sh
+DOCKERBUILDTOUCH: 	$(BUILD_CONTEXT)/nginx.conf \
+					$(BUILD_CONTEXT)/Dockerfile \
+					$(BUILD_CONTEXT)/start_uvicorn.sh 
 	@echo INFO: creating $(IMAGE_NAME) from Dockerfile
 	docker build -t $(IMAGE_NAME) context
 	touch DOCKERBUILDTOUCH
@@ -54,6 +57,18 @@ $(BUILD_CONTEXT)/Dockerfile:
 $(BUILD_CONTEXT)/start_uvicorn.sh:
 	@echo INFO: Pleasle create or download a start_uvicorn.sh script
 	exit 1
+
+$(MNT_DIRS_REL)/appdir/static:
+	mkdir -p $(MNT_DIRS_REL)/appdir/static $(SILENCE_OUTPUT)
+
+$(MNT_DIRS_REL)/html:
+	mkdir $(MNT_DIRS_REL)/html $(SILENCE_OUTPUT)
+
+$(MNT_DIRS_REL)/nginx-cache:
+	mkdir $(MNT_DIRS_REL)/nginx-cache $(SILENCE_OUTPUT)
+
+$(MNT_DIRS_REL)/nginx-pid:
+	mkdir $(MNT_DIRS_REL)/nginx-pid $(SILENCE_OUTPUT)
 
 clean: del-cont del-img
 	@#trigger rebuild of image
