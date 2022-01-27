@@ -21,6 +21,8 @@ MIT License.
 * the DOCKERBUILDTOUCH file is a fake target that remembers the build time.
 * when files in context folder are changed, step **2** from above is ran
 * it also checks that the directory structure exists correctly locally
+* container automatically restarts its self on each make
+* uvicorn is ran with `--reload` so you can see edits without restarting anything. This works because the app code is mounted outside the container.
 * there are some phony targets/commands that are useful use `make <command>`
 	1. clean - does **2** and **3**
 	1. del-cont - fully stops the container from `docker ps -a`
