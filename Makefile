@@ -16,7 +16,7 @@ BUILD_CONTEXT := context
 
 NGINX_HTML_ROOT := /usr/share/nginx/html:ro
 UVICORN_APP_ROOT := /docker-work/uvicornn/appdir:ro
-# READ_ONLY := --read-only -v $(MNT_DIRS_ABS)/nginx-cache:/var/cache/nginx -v $(MNT_DIRS_ABS)/nginx-pid:/var/run
+READ_ONLY := --read-only -v $(MNT_DIRS_ABS)/nginx-cache:/var/cache/nginx -v $(MNT_DIRS_ABS)/nginx-pid:/var/run
 
 # will always run because  docker-run file is never created. ( intended )
 docker-run: DOCKERBUILDTOUCH \
