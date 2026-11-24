@@ -1,4 +1,7 @@
 # A template for running an nginx/uvicorn container using makefile generation
+
+Prefer pictures? Start with **[HUMANS.md](HUMANS.md)**.
+
 ## How It Works
 [Jump Here](#detail)
 

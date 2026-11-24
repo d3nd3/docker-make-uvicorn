@@ -1,0 +1,50 @@
+# docker-make-uvicorn — nginx plus uvicorn, built and run by a Makefile
+# Strokes only (no fills) so the light and dark themes both stay readable.
+direction: right
+
+classes: {
+  entry: {style: {stroke: "#4f9cf9"; stroke-width: 2}}
+  core: {style: {stroke: "#9a7cf9"}}
+  state: {style: {stroke: "#e0a44a"}}
+  ext: {style: {stroke: "#6ac48a"; stroke-dash: 4}}
+  store: {style: {stroke: "#e0a44a"; stroke-width: 2}}
+}
+
+entry: Entry points {
+  direction: down
+  make: "make · default target, tears down the old container and starts a new one" {class: entry}
+  teardown: "make clean, del-cont, del-img · stop, remove container, drop the image" {class: entry}
+  helpers: "make login, logs, inspect · docker exec and logs on the fixed name" {class: entry}
+  port: "localhost:8080 · the one published port, mapped to nginx port 80" {class: entry}
+}
+
+core: Core {
+  direction: down
+  run: "docker-run recipe · no file of its own, so it fires on every make" {class: core}
+  touch: "DOCKERBUILDTOUCH · empty sentinel, its mtime decides whether to build" {class: core}
+  image: "context/Dockerfile · nginx base, apt uvicorn + python3-fastapi, no app inside" {class: core}
+  boot: "start_uvicorn.sh · copied into docker-entrypoint.d as 40-start-uvicorn.sh" {class: core}
+  nginx: "nginx.conf · / proxied to 127.0.0.1:8000, /index.html from the html mount" {class: core}
+  fastapi: "entry.py · FastAPI catch-all returning inline HTML plus the /static mount" {class: core}
+  static: "static/ · index.html, script.js, style.css, served off the bind mount" {class: core}
+  readonly: "docker run flags · --read-only root, html and app :ro, cache and pid rw" {class: core}
+}
+
+state: State {
+  direction: down
+  sentinel: "DOCKERBUILDTOUCH · zero bytes, its timestamp is the build cache" {class: store; shape: cylinder}
+  writable: "mnt_dirs/nginx-cache + nginx-pid · the only writable container paths" {class: store; shape: cylinder}
+  mounts: "mnt_dirs/appdir + mnt_dirs/html · live source, mounted read-only" {class: store; shape: cylinder}
+  conf: "context/nginx.conf · captured once from a throwaway container, edited since" {class: store; shape: cylinder}
+}
+
+external: External {
+  direction: down
+  engine: "Docker engine · build, run, exec, inspect, fixed container and image name" {class: ext}
+  registry: "nginx image and Debian packages · pulled on first build only" {class: ext}
+  browser: "a browser on the host · the only client, no auth in front" {class: ext}
+}
+
+entry -> core
+core -> state
+core -> external
